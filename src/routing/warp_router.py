@@ -3,7 +3,7 @@ from service.warp_service import WarpService
 
 router = APIRouter()
 
-@router.post("/create")
+@router.post("/warp/insert")
 def createWarp(request:Request,response:Response,userId:str):
   print("production  insert")
   service = WarpService(request.app,userId)
