@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-class Item(BaseModel):
+class InsertLoom(BaseModel):
   loomNo : int = None
   loomType : str = None
   tieUp : str= None
