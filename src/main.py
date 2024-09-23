@@ -2,27 +2,29 @@ from fastapi import FastAPI
 import uvicorn
 from routing import warp_router,production_router,loom_router
 from utils.dbutils import connectDb, get_db
-from database import engine
+from utils.database import engine
 from models import models
 from logger import get_logger
+from sqlalchemy.orm import Session
 
 
 logger = get_logger()
+
 
 app = FastAPI(openapi_url="/app/loom/manage/openapi.json",docs_url="/app/loom/manage/docs")
 models.Base.metadata.create_all(bind=engine)
 
 
-# @app.on_event("startup")
-# def startup_db_client():
-#   app.mongo_client = connectDb()
-#   app.database = get_db(app.mongo_client)
-#   logger.info("DB connected")
+@app.on_event("startup")
+def startup_db_client():
+ # app.mongo_client = connectDb()
+  app.database = get_db()
+  logger.info("DB connected")
 
-# @app.on_event("shutdown")
-# def shutdown_db_client():
-#   logger.info("DB Disconnected")
-#   app.mongo_client.close()
+@app.on_event("shutdown")
+def shutdown_db_client():
+  logger.info("DB Disconnected")
+  app.mongo_client.close()
 
 app.include_router(loom_router.router, prefix="/app", tags=["Loom Management"])
 app.include_router(warp_router.router, prefix="/app", tags=["Warp Management"])

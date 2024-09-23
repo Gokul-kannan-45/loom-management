@@ -4,29 +4,30 @@ from pydantic import *
 from fastapi.encoders import jsonable_encoder
 from schema.loom_schema import *
 from constants.error_const import errormessages
+from models import models
+
 
 
 class LoomService():
-  def __init__(self,app):
-    self.loomDb = app.database['loom']
+  def __init__(self,app,db):
+    self.db = db
 
   def insertLoom(self,userId,body:InsertLoom):
 
     # method to maintain number of loom and type of production with the tie-up company
     print("Enter Insert Loom Service")
-    body = jsonable_encoder(body)
-    filter = {"loomNo":body["loomNo"]}
-    loomObj = self.loomDb.find_one(filter,{"_id":0})
-    print(loomObj)
 
-    if loomObj != None:
+    new_loom = models.Loom(loomNo=body.loomNo,loomType=body.loomType,tieUp=body.tieUp,productionType=body.productionType)
+    self.db.add(new_loom)
+    self.db.commit()
+    self.db.refresh(new_loom)
+
+    if new_loom == None:
       raise HTTPException(status_code=400, detail=errormessages["1001"])
     
-    recordInsert = self.loomDb.insert_one(body).inserted_id
     print("Exit Insert Loom Service")
-    return recordInsert
+    return new_loom
   
-  def updateLoom(self, userId, body):
-    print("Enter update loom method")
+ 
 
   
